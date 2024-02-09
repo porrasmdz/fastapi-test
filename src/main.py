@@ -2,7 +2,7 @@ import math
 from typing import Any, Dict, List, Optional
 from fastapi import FastAPI, Query
 from .model import Trip
-from .controller import get_trips, get_filtered_trips
+from .controller import get_filtered_trips, daily_pickups_per_neighborhood
 from .database import client
 
 app = FastAPI()
@@ -42,6 +42,27 @@ def get_trips(pickup_ntaname: Optional[str] = Query(None),
     data = get_filtered_trips(filters=filters, page=page, limit=limit)
     total_count = data[1]
 
+    total_pages = math.ceil(total_count/limit)
+    return APIResponse(
+        data=data[0],
+        page=page,
+        total_pages=total_pages,
+        limit=limit,
+        total_registries=total_count,
+    )
+
+@app.get('/trips/daily-by-neighborhood')
+def get_daily_trips_by_neighborhood(pickup_ntaname: Optional[str] = Query(None), 
+                          pickup_date: Optional[str] = Query(None), 
+                          page: int = Query(1, ge=1), 
+                          limit: int = Query(15, ge=1, le=10000)):
+    filters = {}
+    if pickup_ntaname:
+        filters['pickup_ntaname'] = pickup_ntaname
+    if pickup_date:
+        filters['pickup_date'] = pickup_date
+    data = daily_pickups_per_neighborhood(filters=filters, page=page, limit=limit)
+    total_count = data[1]
     total_pages = math.ceil(total_count/limit)
     return APIResponse(
         data=data[0],

@@ -37,3 +37,33 @@ def paged_filtered_query(filters: Dict[str,Any]={}, page: int = 1, limit: int = 
 
     return (data_result, total_results[0][0])
     
+
+def query_daily_pickups_per_neighborhood(filters: Dict[str,Any]={}, page: int = 1, limit: int = 15) -> Tuple:
+    queued_filters = list(filters.keys())
+    queue_len = len(queued_filters)
+    offset = (page - 1) * limit
+    query = "SELECT pickup_date, pickup_ntaname,SUM(1) AS number_of_trips"
+    totalquery = "SELECT COUNT(*) FROM (SELECT pickup_date, pickup_ntaname,SUM(1) AS number_of_trips"
+
+    query += " FROM trips"
+    totalquery += " FROM trips"
+
+    for filter in queued_filters:
+        if queue_len == len(queued_filters):
+            query += " WHERE %s = \'%s\'" % (filter, str(filters[filter])) 
+            totalquery += " WHERE %s = \'%s\'" % (filter, str(filters[filter]))
+        else:
+            query += " AND %s = \'%s\'" % (filter, str(filters[filter])) 
+            totalquery += " AND %s = \'%s\'" % (filter, str(filters[filter]))
+        queue_len =- 1   
+    
+    query += " GROUP BY pickup_date, pickup_ntaname"
+    totalquery += " GROUP BY pickup_date, pickup_ntaname)"
+    query += " ORDER BY pickup_date DESC LIMIT %d OFFSET %d" % (int(limit), int(offset))
+    
+    data_result = client.execute(query)
+    total_results = client.execute(totalquery)
+    
+
+    return (data_result, total_results[0][0])
+    
