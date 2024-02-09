@@ -14,7 +14,7 @@ def paged_filtered_query(filters: Dict[str,Any]={}, page: int = 1, limit: int = 
     queued_filters = list(filters.keys())
     queue_len = len(queued_filters)
     offset = (page - 1) * limit
-    query = "SELECT trip_id, pickup_date, dropoff_date, pickup_ntaname"
+    query = "SELECT trip_id, pickup_date, pickup_ntaname, passenger_count, trip_distance, tolls_amount, total_amount"
     totalquery = "SELECT COUNT(*)"
 
     query += " FROM trips"

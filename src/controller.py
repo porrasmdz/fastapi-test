@@ -17,9 +17,11 @@ def get_filtered_trips(
         trip = {
             "trip_id": row[0] ,
             "pickup_date": row[1],
-            "dropoff_date": row[2],
-            "pickup_ntaname" : row[3],
-            # Agrega más campos según la estructura de tu tabla
+            "pickup_ntaname": row[2],
+            "passenger_count" : row[3],
+            "trip_distance" : row[4],
+            "tolls_amount" : row[5],
+            "total_amount" : row[6],
         }
         trips.append(trip)
     return (trips, total_results)
