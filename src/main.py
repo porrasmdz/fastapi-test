@@ -1,10 +1,25 @@
 import math
 from typing import Any, List, Optional
 from fastapi import FastAPI, Query
+from fastapi.middleware.cors import CORSMiddleware
 from src.model import Trip
 from src.controller import get_filtered_trips, daily_pickups_per_neighborhood, unique_neighborhoods, get_root
 
 app = FastAPI()
+
+origins = [
+    "http://localhost:5172",
+    "http://localhost:8081",
+    "http://fastapi-frontend:5172",
+    "http://cron-tasks:8081",
+    # Agrega aquí otros orígenes permitidos si es necesario
+]
+
+app.add_middleware(CORSMiddleware,  
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PUT", "DELETE"],
+    allow_headers=["*"],)
 class APIResponse:
     def __init__(self, data: List[Any], page: int, total_pages: int, limit: int, total_registries: int):
         self.data = data
