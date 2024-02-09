@@ -1,5 +1,5 @@
 from typing import Any, Dict, List
-from .database import client, paged_filtered_query, query_daily_pickups_per_neighborhood, query_unique_neighborhoods
+from src.database import client, paged_filtered_query, query_daily_pickups_per_neighborhood, query_unique_neighborhoods
 
 def get_root():
     total = client.execute('SELECT count() FROM trips')

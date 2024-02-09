@@ -1,12 +1,10 @@
 import math
 from typing import Any, List, Optional
 from fastapi import FastAPI, Query
-from .model import Trip
-from .controller import get_filtered_trips, daily_pickups_per_neighborhood, unique_neighborhoods, get_root
+from src.model import Trip
+from src.controller import get_filtered_trips, daily_pickups_per_neighborhood, unique_neighborhoods, get_root
 
 app = FastAPI()
-
-
 class APIResponse:
     def __init__(self, data: List[Any], page: int, total_pages: int, limit: int, total_registries: int):
         self.data = data
@@ -14,7 +12,6 @@ class APIResponse:
         self.total_pages = total_pages
         self.limit = limit
         self.total_registries = total_registries
-
 
 @app.get('/')
 def read_root():
