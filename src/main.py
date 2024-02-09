@@ -1,9 +1,8 @@
 import math
-from typing import Any, Dict, List, Optional
+from typing import Any, List, Optional
 from fastapi import FastAPI, Query
 from .model import Trip
-from .controller import get_filtered_trips, daily_pickups_per_neighborhood
-from .database import client
+from .controller import get_filtered_trips, daily_pickups_per_neighborhood, unique_neighborhoods, get_root
 
 app = FastAPI()
 
@@ -19,14 +18,7 @@ class APIResponse:
 
 @app.get('/')
 def read_root():
-    result = client.execute('SHOW DATABASES')
-    total = client.execute('SELECT count() FROM trips')
-
-    return {
-        "databases": str(result),
-        "total": "Total results %s" % str(total),
-        "docs-entrypoint": "/docs"
-    }
+    return get_root()
 
 
 @app.get('/trips')
@@ -51,6 +43,7 @@ def get_trips(pickup_ntaname: Optional[str] = Query(None),
         total_registries=total_count,
     )
 
+
 @app.get('/trips/daily-by-neighborhood')
 def get_daily_trips_by_neighborhood(pickup_ntaname: Optional[str] = Query(None), 
                           pickup_date: Optional[str] = Query(None), 
@@ -63,6 +56,23 @@ def get_daily_trips_by_neighborhood(pickup_ntaname: Optional[str] = Query(None),
         filters['pickup_date'] = pickup_date
     data = daily_pickups_per_neighborhood(filters=filters, page=page, limit=limit)
     total_count = data[1]
+    total_pages = math.ceil(total_count/limit)
+    return APIResponse(
+        data=data[0],
+        page=page,
+        total_pages=total_pages,
+        limit=limit,
+        total_registries=total_count,
+    )
+
+# For frontend
+@app.get('/neighborhoods')
+def get_neighborhoods( page: int = Query(1, ge=1), 
+                          limit: int = Query(15, ge=1, le=10000)):
+   
+    data = unique_neighborhoods(page=page, limit=limit)
+    total_count = data[1]
+
     total_pages = math.ceil(total_count/limit)
     return APIResponse(
         data=data[0],

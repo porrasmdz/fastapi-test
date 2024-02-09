@@ -67,3 +67,21 @@ def query_daily_pickups_per_neighborhood(filters: Dict[str,Any]={}, page: int = 
 
     return (data_result, total_results[0][0])
     
+
+def query_unique_neighborhoods(page: int = 1, limit: int = 15) -> Tuple:
+    
+    offset = (page - 1) * limit
+    query = "SELECT DISTINCT(pickup_ntaname)"
+    totalquery = "SELECT COUNT(*) FROM (SELECT DISTINCT(pickup_ntaname)"
+
+    query += " FROM trips"
+    totalquery += " FROM trips)"
+    
+    query += " ORDER BY pickup_ntaname DESC LIMIT %d OFFSET %d" % (int(limit), int(offset))
+    
+    data_result = client.execute(query)
+    total_results = client.execute(totalquery)
+    
+
+    return (data_result, total_results[0][0])
+    

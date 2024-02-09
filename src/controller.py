@@ -1,8 +1,15 @@
 from typing import Any, Dict, List
+from .database import client, paged_filtered_query, query_daily_pickups_per_neighborhood, query_unique_neighborhoods
 
-from fastapi import Query
-from .database import paged_filtered_query, query_daily_pickups_per_neighborhood
+def get_root():
+    total = client.execute('SELECT count() FROM trips')
 
+    return {
+        "database": "default",
+        "total": "Total registries %s" % str(total[0][0]),
+        "docs-entrypoint": "/docs",
+        "entrypoints": ["/trips","/trips/daily-by-neighborhood", "/neighborhoods"]
+    }
 
 def get_filtered_trips(
     filters: Dict[str,Any],
@@ -26,6 +33,7 @@ def get_filtered_trips(
         trips.append(trip)
     return (trips, total_results)
 
+
 def daily_pickups_per_neighborhood(
     filters: Dict[str,Any],
     page: int = 1,
@@ -44,3 +52,17 @@ def daily_pickups_per_neighborhood(
         }
         trips.append(trip)
     return (trips, total_results)
+
+def unique_neighborhoods(
+   
+    page: int = 1,
+    limit: int = 15
+):
+    results_tuple = query_unique_neighborhoods(page=page,limit=limit)
+    result = results_tuple[0]
+    total_results = results_tuple[1]
+    neighborhoods = []
+    for row in result:
+        neighborhood = str(row[0]),
+        neighborhoods.append(neighborhood)
+    return (neighborhoods, total_results)
